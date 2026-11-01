@@ -1,0 +1,38 @@
+{
+  "id": "light-drive",
+  "title": "LIGHT DRIVE",
+  "version": "1.3.6",
+  "description": "An endless first-person night drive. Brake against a creeping accelerator, fight tunnel vision and fast eyelid blinks over the windshield, and collect rare neon road arrows to wake up. Sleep never ends the drive by itself; a lucky animal hit can wake you but adds lasting drift damage. There is no hit-count limit. Animated wildlife, four palettes, soft piezo sound and rumble. Distance, wake-ups, avoided animals and an SD high score.",
+  "genre": "Driving",
+  "cartImage": "docs/cart.png",
+  "licenseFiles": [
+    "LICENSE",
+    "NOTICE",
+    "licenses/CHGame-Apache-2.0.txt",
+    "licenses/CHGame-NOTICE.txt",
+    "licenses/CHGfx-MIT.txt",
+    "licenses/Board-MIT.txt"
+  ],
+  "buttons": [
+    {
+      "control": "DPAD",
+      "action": "Left/right: steer; title: palette. Up: sound, Down: rumble on title/pause."
+    },
+    {
+      "control": "A",
+      "action": "Start, retry and confirm; neon recovery is automatic when driving over road arrows"
+    },
+    {
+      "control": "B",
+      "action": "Hold to brake against the creeping accelerator; title: help; pause: end drive"
+    },
+    {
+      "control": "SELECT",
+      "action": "Cycle Night Red, Amber, Deep Blue and Violet"
+    },
+    {
+      "control": "START",
+      "action": "Pause/resume; hold 3 seconds for console menu"
+    }
+  ]
+}

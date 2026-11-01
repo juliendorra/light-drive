@@ -1,0 +1,52 @@
+[
+  {
+    "name": "open",
+    "source_sha256": "c672638c002ee26308d3128a4e0bac4c88d9a475cae7f31e3841265e8d87c841",
+    "sha256": "cbcc445c0d88579652566389e1359142d51bcc6a3a7ab37bc2232f852eac0ea4",
+    "size": [
+      40,
+      24
+    ],
+    "packed_bytes": 240
+  },
+  {
+    "name": "motel",
+    "source_sha256": "587219de439a6689cd3eff06409e3a15f33bf6bae7c3f5813f1c077c6bc78823",
+    "sha256": "7fde2af1f68b65f32b2ad4df064f49032400f552e282a62f5e84b46af043959b",
+    "size": [
+      44,
+      30
+    ],
+    "packed_bytes": 330
+  },
+  {
+    "name": "gas",
+    "source_sha256": "94ed57410bb7c0a6fc5a18bad0311d5e03dcb07c0d2c7f8b15503da572387dfd",
+    "sha256": "5d4c07e4781a1106ecd4a7a2b0cf314ac5f3ec0da6f67d8c2c205d4450d5a510",
+    "size": [
+      24,
+      38
+    ],
+    "packed_bytes": 228
+  },
+  {
+    "name": "24h",
+    "source_sha256": "0876e9d35610e036a92a1eeff9416288b92e8c87e9a6a9965892361a886f0b54",
+    "sha256": "063a8decbce4e36e465f14effb1df7de4ac7098fbc3028f274584702c5e05ab3",
+    "size": [
+      44,
+      28
+    ],
+    "packed_bytes": 308
+  },
+  {
+    "name": "arrow",
+    "source_sha256": "fff34f8b2e8d5b0ae879f68f27606540179968e8e52e1250659e1f9d45a926bf",
+    "sha256": "10bd51894ad846fa11b0d43805326945d6b7b70367567574cd22588457019a9d",
+    "size": [
+      11,
+      15
+    ],
+    "packed_bytes": 42
+  }
+]

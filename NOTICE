@@ -1,0 +1,14 @@
+LIGHT DRIVE
+
+Original game rules, indexed pixel artwork, sparse soundscape and
+driving feedback created for this project. Game code is MIT licensed.
+
+Rumble PWM driver reused from the Pinball game, for CHGame Rev0
+GPIO1 / PC0 / H1.8, TIM2 CH4.
+
+Build dependency: CHGame, copyright 2026 Kevin Bates (bateske), Apache 2.0;
+CHGfx, copyright 2026 bateske, MIT; CHGame board runtime, MIT.
+Dependency license notices are included under licenses/.
+
+Visual inspiration: Kravennart's "Night drive, 4 colors", supplied by the
+user. Reference artwork is not copied or included in the game assets.

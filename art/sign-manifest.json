@@ -1,0 +1,34 @@
+[
+  {
+    "name": "OPEN",
+    "size": [
+      38,
+      22
+    ],
+    "sha256": "c672638c002ee26308d3128a4e0bac4c88d9a475cae7f31e3841265e8d87c841"
+  },
+  {
+    "name": "MOTEL",
+    "size": [
+      42,
+      28
+    ],
+    "sha256": "587219de439a6689cd3eff06409e3a15f33bf6bae7c3f5813f1c077c6bc78823"
+  },
+  {
+    "name": "GAS",
+    "size": [
+      22,
+      36
+    ],
+    "sha256": "94ed57410bb7c0a6fc5a18bad0311d5e03dcb07c0d2c7f8b15503da572387dfd"
+  },
+  {
+    "name": "24H",
+    "size": [
+      42,
+      26
+    ],
+    "sha256": "0876e9d35610e036a92a1eeff9416288b92e8c87e9a6a9965892361a886f0b54"
+  }
+]

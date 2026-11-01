@@ -12,7 +12,7 @@ passing by the neon signs wakes you up and restore your vision
 
 hitting crossing animals damage your car and makes it drift more, but wakes you up instantly
 
-your car is speeding up if you do nothing, because your foot is heavy on the pedal. Press **B** to lift your foot and slow down… but slow down too much and you won't reach the next neon
+Speed control is inverted from the usual: your car is speeding up by default, because your foot is heavy on the pedal. You have to actively press B to lift your foot and slow down… but slow down too much and you won't reach the next neon
 
 The game is compatible with my simple rumble pack add-on on GPIO1, and it really adds to the the gameplay, with small staccatos when drifting out of the road, a big short rumble when hitting an animal, and a long series when crashing and rolling.It was really fun to test and evolve it this weekend, and it is really close to the gameplay I had in mind. This play both chill and alert at the same time. Like a night drive.
 

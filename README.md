@@ -2,6 +2,8 @@
 
 A quiet, endless night drive for the **CHGame Rev0** handheld.
 
+![Light Drive trailer](docs/trailer.gif)
+
 Sleep narrows your vision while your foot gets heavier. Brake with **B**,
 follow neon arrows to wake up, and watch for wildlife. Four night palettes,
 soft buzzer sounds and optional rumble. Your best distance stays on the SD card.

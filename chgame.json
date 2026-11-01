@@ -1,7 +1,7 @@
 {
   "id": "light-drive",
   "title": "LIGHT DRIVE",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "An endless first-person night drive. Brake against a creeping accelerator, fight tunnel vision and fast eyelid blinks over the windshield, and collect rare neon road arrows to wake up. Sleep never ends the drive by itself; a lucky animal hit can wake you but adds lasting drift damage. There is no hit-count limit. Animated wildlife, four palettes, soft piezo sound and rumble. Distance, wake-ups, avoided animals and an SD high score.",
   "genre": "Driving",
   "cartImage": "docs/cart.png",

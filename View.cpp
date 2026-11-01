@@ -431,10 +431,10 @@ void dashboard(const night::Game &g) {
     // Cropped wheel and an analogue dial: cockpit, rather than HUD chrome.
     int turn=g.steering/24;
     circle(25,134,35,Edge);circle(25,134,32,Dim);
-    // Three short stitches rotate on the leather rim. Both endpoints
-    // share its centre/radius, so they cannot stretch into the gauge.
+    // Top stitch plus two at +/-30 degrees, all visible on the cropped
+    // leather rim. Shared centre/radii keep them clear of the gauge.
     for(int i=0;i<3;++i) {
-        unsigned a=128+i*64+turn;int dx=night::wave(a+64),dy=night::wave(a);
+        unsigned a=192+(i-1)*21+turn;int dx=night::wave(a+64),dy=night::wave(a);
         line(25+dx*34/256,134+dy*34/256,25+dx*33/256,134+dy*33/256,Pale);
     }
     circle(25,130,24,Dim);

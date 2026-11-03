@@ -328,15 +328,15 @@ void neon(const night::Game &g) {
 void hazard(const night::Game &g) {
     int z=g.hazardZ();if(z<0 || z>190 || g.hazard.resolved)return;
     int y=project(z),depth=y-44,x=middle(g,y)+g.hazardX()*half(y)/1024;
-    unsigned frame=g.tick/7;bool mirror=g.hazard.side>0;
+    unsigned frame=g.tick/5;bool mirror=g.hazard.side>0;
     auto height=[](int h) {return h>105?105:h;};
     switch(g.hazard.kind) {
     case night::Deer: art::draw(art::Deer,frame,x,y,height(depth*3/4+3),mirror);break;
     case night::Fox: art::draw(art::Fox,frame,x,y,height(depth*2/5+3),mirror);break;
-    case night::Hare: art::draw(art::Hare,frame,x,y,height(depth*2/5+2),mirror);break;
-    case night::Owl: art::draw(art::Owl,g.tick/9,x,y-depth/3,height(depth/3+3),mirror);break;
+    case night::Hare: art::draw(art::Hare,g.tick/4,x,y,height(depth*2/5+2),mirror);break;
+    case night::Owl: art::draw(art::Owl,g.tick/8,x,y-depth/3,height(depth/3+3),mirror);break;
     case night::Birds:
-        for(int i=0;i<3;++i)art::draw(art::Crow,g.tick/6+i,x+(i-1)*depth/8,y-depth/4+(i%2)*depth/10,height(depth/5+2),mirror);
+        for(int i=0;i<3;++i)art::draw(art::Crow,g.tick/4+i*2,x+(i-1)*depth/8,y-depth/4+(i%2)*depth/10,height(depth/5+2),mirror);
         break;
     default:art::draw(art::Branch,0,x,y,height(depth/3+3),mirror);break;
     }

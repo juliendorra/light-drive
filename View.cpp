@@ -116,10 +116,15 @@ void road(const night::Game &g) {
         int z=(i*12+12)*night::Q-stripePhase;
         int y=projectQ(z+3*night::Q),bottom=projectQ(z);
         if(y>97)continue;if(bottom>98)bottom=98;
-        int length=bottom-y+1,c=middle(g,(y+bottom)/2),w=(bottom-44)/22+1;
-        gfx_fillRect(c-w/2,y,w,length,y<53?Dim:Pale);
+        // Paint lies on the road plane: each row follows its projected
+        // centre and width, including lateral parallax and the road bend.
+        // A single upright rectangle loses that perspective off-centre.
+        for(int row=y;row<=bottom;++row) {
+            int c=middle(g,row),w=(row-44)/22+1;
+            gfx_hline(c-w/2,row,w,y<53?Dim:Pale);
+        }
         // The wet asphalt catches short, broken glints, never a filled road.
-        if(i%3==1)gfx_hline(c+half(y)/2,y+1,1+(y-44)/12,Shade);
+        if(i%3==1)gfx_hline(middle(g,(y+bottom)/2)+half(y)/2,y+1,1+(y-44)/12,Shade);
     }
     // Sparse reflectors and broken grass replace the wireframe fence.
     for(int side=-1;side<=1;side+=2)for(int i=5;i>=0;--i) {

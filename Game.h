@@ -11,7 +11,7 @@ constexpr int ARROW_GAP=18, ARROW_LANE=480, ARROW_HALF_WIDTH=250;
 constexpr int ARROW_RELIEF=800;
 unsigned arrowCount(unsigned kind);
 int arrowOffset(unsigned kind,unsigned arrow);
-constexpr int START_SPEED=62, MAX_SPEED=118, MIN_SPEED=42;
+constexpr int START_SPEED=62, MAX_SPEED=130, MIN_SPEED=42;
 constexpr unsigned BLINK_SLEEP=9000, BLINK_RAMP=1800;
 enum Screen : uint8_t { Title, Help, Drive, Paused, Rest, Tumble=6 };
 enum Key : uint8_t { Confirm=1, Brake=2, Left=4, Right=8, Start=16, Palette=32, Sound=64, Rumble=128 };

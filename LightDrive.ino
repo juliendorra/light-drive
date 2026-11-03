@@ -43,7 +43,7 @@ static bool debug(char command,const char *args) {
     if(command=='E') {
         unsigned distance=420*night::Q,tick=1200,kind=0,sleep=8800,speed=night::START_SPEED,base=0;int position=500,side=1,z=65,steering=0;
         sscanf(args,"%u %d %u %u %d %d %u %u %u %d",&distance,&position,&tick,&kind,&side,&z,&sleep,&speed,&base,&steering);
-        if(position<-4096 || position>4096 || kind>3 || (side!=1 && side!=-1) || z<0 || z>2000 || sleep>9500 || speed<42 || speed>118 || base>1 || steering<-160 || steering>160)return false;
+        if(position<-4096 || position>4096 || kind>3 || (side!=1 && side!=-1) || z<0 || z>2000 || sleep>9500 || speed<night::MIN_SPEED || speed>night::MAX_SPEED || base>1 || steering<-160 || steering>160)return false;
         game.begin();game.distance=distance;game.position=position;game.tick=tick;game.sleep=sleep;game.palette=0;
         game.speed=speed;game.steering=steering;
         game.sign.at=distance+z*night::Q;game.sign.kind=kind;game.sign.side=side;game.hazard.at=distance+1000*night::Q;
@@ -82,7 +82,7 @@ static bool debug(char command,const char *args) {
     if(command=='W') {
         unsigned kind=0,z=70,sleep=1100,speed=night::START_SPEED,age=0,phase=0,hits=0,damage=0;int position=550;
         sscanf(args,"%u %u %d %u %u %u %u %u %u",&kind,&z,&position,&sleep,&speed,&age,&phase,&hits,&damage);
-        if(kind>=night::CREATURE_COUNT || z>190 || sleep>10000 || speed<42 || speed>118 || position<-1000 || position>1000 || age>night::BLINK_RAMP || hits>255 || damage>100)return false;
+        if(kind>=night::CREATURE_COUNT || z>190 || sleep>10000 || speed<night::MIN_SPEED || speed>night::MAX_SPEED || position<-1000 || position>1000 || age>night::BLINK_RAMP || hits>255 || damage>100)return false;
         game.begin();game.distance=420*night::Q;game.tick=1200;game.position=position;game.sleep=sleep;game.speed=speed;game.palette=0;
         game.hazard.kind=kind;game.hazard.at=game.distance+z*night::Q;game.hazard.side=-1;game.hazard.lane=0;
         game.drowsy=age;if(phase>=game.blinkPeriod())return false;game.blinkPhase=phase;
@@ -114,7 +114,7 @@ static bool debug(char command,const char *args) {
 }
 #endif
 void setup() {
-    chgame.boot();dbg::begin("NIGHT 1.3.8");
+    chgame.boot();dbg::begin("NIGHT 1.3.9");
 #if CHGAME_DEBUG
     dbg::hook=debug;
 #endif

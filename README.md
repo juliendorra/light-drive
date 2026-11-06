@@ -31,3 +31,10 @@ arduino-cli compile --fqbn CHGame:ch32v:rev0:opt=oslto,rtlib=nano,periph=game,us
 
 Game source and original [pixel artwork](art/) are MIT licensed.
 Visual inspiration: [Kravennart’s “Night drive, 4 colors”](https://www.reddit.com/r/PixelArt/comments/1xkeudl/night_drive_4_colors/).
+
+
+## Audio update 1.3.11
+
+Sparse ambient chimes move up two octaves for the small Rev0 sounder. Their quiet pulse width, spacing and rests remain. Hazard cues retain precedence, and the existing game/save behavior is retained.
+
+[Audio validation notes](docs/audio-update.md).

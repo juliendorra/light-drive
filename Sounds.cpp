@@ -18,7 +18,9 @@ void soundscape(const night::Game &g) {
         // Silence is the bed. One soft note about every six seconds, with
         // longer gaps when tired. No engine loop or polyphonic soundtrack.
         static const uint16_t notes[]={440,330,392,294,440,392,330,0};
-        if(g.events&Chime) {unsigned n=notes[(g.tick/370)%8];if(n)audio::blip(n,70,true);}
+        // Keep the quiet pulse and sparse timing, but move the chime into
+        // the small Rev0 sounder's useful midrange instead of low bass.
+        if(g.events&Chime) {unsigned n=notes[(g.tick/370)%8];if(n)audio::blip(n*4,70,true);}
         else if(g.events&Rain)audio::blip(1600,6,true);
     }
     audio::update();

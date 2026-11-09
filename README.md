@@ -26,15 +26,39 @@ then open `LightDrive.ino` in Arduino IDE, or build with `arduino-cli`:
 ```sh
 git clone https://github.com/juliendorra/light-drive.git LightDrive
 cd LightDrive
-arduino-cli compile --fqbn CHGame:ch32v:rev0:opt=oslto,rtlib=nano,periph=game,usb=uploadonly --output-dir build .
+python3 chgame.py build .
 ```
 
 Game source and original [pixel artwork](art/) are MIT licensed.
 Visual inspiration: [Kravennart’s “Night drive, 4 colors”](https://www.reddit.com/r/PixelArt/comments/1xkeudl/night_drive_4_colors/).
 
 
-## Audio update 1.3.11
+## Audio update 1.3.12
 
 Sparse ambient chimes move up two octaves for the small Rev0 sounder. Their quiet pulse width, spacing and rests remain. Hazard cues retain precedence, and the existing game/save behavior is retained.
 
 [Audio validation notes](docs/audio-update.md).
+
+## SD saves
+
+Version 1.3.12 uses [CHSave 0.1.0](https://github.com/juliendorra/chgame-sd-saves).
+Progress and settings are stored in `LGDR.SAV`; existing saves are preserved.
+Prepare a mounted card before installing the new cartridge:
+
+```sh
+python3 tools/sd_saves.py prepare --card /path/to/card
+```
+
+The source includes the pinned library and SD adapter. Build through `chgame.py`
+so the SD backend is selected. Keep save files when replacing cartridges.
+
+For source builds, clone the SDK into `.deps/CHGame` and select the tested revision:
+
+```sh
+git clone https://github.com/bateske/CHGame.git .deps/CHGame
+git -C .deps/CHGame checkout edf822c8803a4939f4d0808f779d9522ee41c2ba
+python3 chgame.py build
+python3 chgame.py export --no-build
+```
+
+Release firmware is built with GCC 16.2.0.

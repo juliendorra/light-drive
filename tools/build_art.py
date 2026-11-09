@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+"""Use the workspace pixelpatch process, then pack hand-drawn frames as row spans."""
+from pathlib import Path
+import hashlib
+import importlib.util
+import json
+import sys
+from PIL import Image,ImageDraw
+
+from chgame_env import chgame_root
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'art'))
+sys.path.insert(0,str(ROOT.parent/'MysticBalloon/tools/art'))
+import stencils
+import pixelpatch
+sys.path.insert(0,str(chgame_root() / 'tools'))
+import pixkit
+
+COLORS=['#000000','#220000','#771100','#ee4433','#ffbbaa','#44ffdd','#ff55aa','#ccff66','#ffffff','#ffdd77','#115544','#551122','#000000','#000000','#000000','#182028']
+def palette(im):
+    im.putpalette([n for c in COLORS for n in bytes.fromhex(c[1:])]+[0]*(768-48));return im
+def base(size):return palette(Image.new('P',size,15))
+def pack(im):
+    data=[];offsets=[]
+    for y in range(im.height):
+        offsets.append(len(data));runs=[];x=0
+        while x<im.width:
+            c=im.getpixel((x,y));n=1
+            while x+n<im.width and n<16 and im.getpixel((x+n,y))==c:n+=1
+            runs.append(((n-1)<<4)|c);x+=n
+        data.append(len(runs));data.extend(runs)
+    return offsets,data
+def checker(size):
+    im=Image.new('RGB',size,'#182028');d=ImageDraw.Draw(im)
+    for y in range(0,size[1],8):
+        for x in range(0,size[0],8):
+            if (x//8+y//8)%2:d.rectangle((x,y,x+7,y+7),fill='#273039')
+    return im
+def atlas(assets,names,path):
+    cellw=240
+    cellh=275 if max(im.height for name in names for im in assets[name])>40 else 255
+    columns=max(len(assets[name]) for name in names)
+    out=Image.new('RGB',(cellw*columns,cellh*len(names)),'#101419');draw=ImageDraw.Draw(out)
+    for row,name in enumerate(names):
+        for col,im in enumerate(assets[name]):
+            x,y=col*cellw,row*cellh
+            draw.text((x+8,y+6),f'{name.upper()} / {col+1}',fill='#e8c6b5')
+            view=im.convert('RGBA').resize((im.width*4,im.height*4),Image.Resampling.NEAREST)
+            mat=checker(view.size).convert('RGBA');mat.alpha_composite(view)
+            out.paste(mat.convert('RGB'),(x+8,y+25))
+            out.paste(im.convert('RGB'),(x+8,y+218))
+    path.parent.mkdir(parents=True,exist_ok=True);out.save(path)
+def signs(check):
+    textures=[];report=[]
+    for kind,(label,w,h,color) in enumerate([('OPEN',38,22,5),('MOTEL',42,28,6),('GAS',22,36,7),('24H',42,26,5)]):
+        canvas=base((w,h));pixels=[[15]*w for _ in range(h)]
+        if kind!=1:
+            # Deliberate stepped contour profiles at the asset's native size.
+            inset=([13,9,6,4,3,2,1,1,0,0,0,0,0,0,1,1,2,3,4,6,9,13] if kind==0 else
+                   [4,2,1]+[0]*(h-6)+[1,2,4] if kind==2 else
+                   [7,4,2,1]+[0]*(h-8)+[1,2,4,7])
+            for y,margin in enumerate(inset):
+                for x in range(margin,w-margin):pixels[y][x]=color if x==margin or x==w-margin-1 or y in (0,h-1) else 0
+        text=[]
+        if kind==2:
+            for i,ch in enumerate(label):text.append((ch,8,3+i*10))
+        else:
+            start=(w-(len(label)*6-1))//2
+            text=[(ch,start+i*6,3 if kind==0 else 2 if kind==1 else 3) for i,ch in enumerate(label)]
+        points=[]
+        for ch,x0,y0 in text:
+            for x,bits in enumerate(pixkit.FONT57[ord(ch)-32]):
+                for y in range(7):
+                    if bits&(1<<y):
+                        if kind==2:points.append((x0+x,y0+y))
+                        else:points.extend([(x0+x,y0+y*2),(x0+x,y0+y*2+1)])
+        if kind==1:
+            # Black letter-shaped backing, not a rectangular poster matte.
+            for x,y in points:
+                for dx,dy in [(0,0),(-1,0),(1,0),(0,-1),(0,1)]:
+                    if 0<=x+dx<w and 0<=y+dy<h:pixels[y+dy][x+dx]=0
+            for x in range(3,w-3):pixels[18][x]=2
+        for x,y in points:pixels[y][x]=8 if kind in (0,3) else color
+        if kind in (0,1,3):
+            y0=18 if kind==0 else 22 if kind==1 else 20
+            fake=['55.5.55..555.5..55.555..5.55','5..55.5.55..55.5..555.55.5']
+            for j,line in enumerate(fake):
+                left=(w-len(line))//2
+                for x,ch in enumerate(line):
+                    if ch!='.' and (kind==1 or pixels[y0+j*3][left+x]==0):pixels[y0+j*3][left+x]=color if j==0 else 10
+        rows=[''.join('0123456789ABCDEF'[c] for c in row) for row in pixels]
+        spec={'size':[w,h],'base_sha256':pixelpatch.digest(canvas),'review':[0,0,w,h],
+              'patches':[{'at':[0,0],'rows':rows}]}
+        im,stats=pixelpatch.apply(canvas,spec);im.info['transparency']=15;textures.append(im)
+        report.append({'name':label,'size':[w,h],'sha256':stats['sha256']})
+        if not check:
+            im.save(ROOT/f'art/png/sign-{label.lower()}.png',transparency=15)
+            (ROOT/f'art/png/sign-{label.lower()}.json').write_text(json.dumps(spec,indent=2)+'\n')
+    header='// Native pixel-art sign textures; generated by tools/build_art.py.\n#pragma once\n#include <stdint.h>\n'
+    header+='#if defined(__riscv) && !defined(CHSIM)\n#define SIGN_FLASH __attribute__((section(".rodata.lightdrive.signs")))\n#else\n#define SIGN_FLASH\n#endif\n'
+    header+='struct SignTexture {const uint8_t *pixels;uint8_t w,h;};\n'
+    for i,im in enumerate(textures):
+        cells=list(im.tobytes());cells+=[15]*(len(cells)%2)
+        packed=[cells[x]|cells[x+1]<<4 for x in range(0,len(cells),2)]
+        header+=f'static const uint8_t sign_texture_{i}[] SIGN_FLASH={{'+','.join(map(str,packed))+'};\n'
+    header+='static const SignTexture SIGN_TEXTURES[] SIGN_FLASH={'+','.join('{'+f'sign_texture_{i},{im.width},{im.height}'+'}' for i,im in enumerate(textures))+'};\n'
+    if check:assert (ROOT/'SignArt.h').read_text()==header,'SignArt.h is stale'
+    else:
+        (ROOT/'SignArt.h').write_text(header)
+        atlas({'signs':textures},['signs'],ROOT/'docs/neon-art-sheet.png')
+        (ROOT/'art/sign-manifest.json').write_text(json.dumps(report,indent=2)+'\n')
+    return textures
+
+def haze_assets(signs,arrow,check):
+    """Bake a one-texel halo; levels are transparent, dim core, faint halo."""
+    header='// Baked duplicate emissive sprites; generated from indexed sign/arrow art.\n#pragma once\n#include <stdint.h>\n'
+    header+='#if defined(__riscv) && !defined(CHSIM)\n#define HAZE_FLASH __attribute__((section(".rodata.lightdrive.haze")))\n#else\n#define HAZE_FLASH\n#endif\n'
+    header+='struct HazeTexture {const uint8_t *pixels;uint8_t w,h;};\n'
+    report=[];views=[];labels=['open','motel','gas','24h','arrow']
+    for i,source in enumerate([*signs,arrow]):
+        im=Image.new('P',(source.width+2,source.height+2),0)
+        im.putpalette([0,0,0,17,85,68,0,34,17]+[0]*(768-9));im.info['transparency']=0
+        points=[(x+1,y+1) for y in range(source.height) for x in range(source.width)
+                if 5<=source.getpixel((x,y))<=11]
+        for x,y in points:
+            for dy in (-1,0,1):
+                for dx in (-1,0,1):im.putpixel((x+dx,y+dy),2)
+        for p in points:im.putpixel(p,1)
+        cells=list(im.tobytes());packed=[]
+        for a in range(0,len(cells),4):packed.append(sum(c<<(j*2) for j,c in enumerate(cells[a:a+4])))
+        header+=f'static const uint8_t haze_{i}[] HAZE_FLASH={{'+','.join(map(str,packed))+'};\n'
+        report.append({'name':labels[i],'source_sha256':pixelpatch.digest(source),'sha256':pixelpatch.digest(im),'size':list(im.size),'packed_bytes':len(packed)})
+        if not check:
+            path=ROOT/f'art/png/haze-{labels[i]}.png';im.save(path,transparency=0)
+            spec={'size':list(im.size),'source_sha256':pixelpatch.digest(source),'base_sha256':pixelpatch.digest(Image.new('P',im.size,0)),
+                  'review':[0,0,*im.size],'patches':[{'at':[0,0],'rows':[''.join(str(im.getpixel((x,y))) for x in range(im.width)) for y in range(im.height)]}]}
+            path.with_suffix('.json').write_text(json.dumps(spec,indent=2)+'\n')
+        views.append(im)
+    header+='static const HazeTexture HAZE_SIGNS[] HAZE_FLASH={'+','.join('{'+f'haze_{i},{views[i].width},{views[i].height}'+'}' for i in range(4))+'};\n'
+    a=views[-1];header+='static const uint32_t ARROW_HAZE_ROWS[] HAZE_FLASH={'+','.join(str(sum(a.getpixel((x,y))<<(x*2) for x in range(a.width))) for y in range(a.height))+'};\n'
+    if check:assert (ROOT/'HazeArt.h').read_text()==header,'HazeArt.h is stale'
+    else:
+        (ROOT/'HazeArt.h').write_text(header)
+        (ROOT/'art/haze-manifest.json').write_text(json.dumps(report,indent=2)+'\n')
+        atlas({'haze':views},['haze'],ROOT/'docs/baked-haze-art-sheet.png')
+def main():
+    check='--check' in sys.argv
+    source=stencils.assets();assets={};manifest={};row_pool=[];interned={}
+    contours=json.loads((ROOT/'art/wildlife-contours.json').read_text())['sprites']
+    header='// Generated by tools/build_art.py from hand-drawn indexed stencils.\n#pragma once\n#include <stdint.h>\n'
+    header+='#if defined(__riscv) && !defined(CHSIM)\n#define NIGHT_ART __attribute__((section(".rodata.lightdrive.art")))\n#else\n#define NIGHT_ART\n#endif\nnamespace art {\n'
+    header+='struct Frame {const uint8_t *data;const uint16_t *rows;uint8_t w,h,anchorX,anchorY;};\nstruct Animation {const Frame *frames;uint8_t count;};\n'
+    for name,item in source.items():
+        frames=[];manifest[name]=[];frame_names=[]
+        for i,patches in enumerate(item['frames']):
+            original=base(item['size']);spec={'size':item['size'],'base_sha256':pixelpatch.digest(original),'review':[0,0,*item['size']],'patches':patches}
+            im,report=pixelpatch.apply(original,spec)
+            if name in contours:
+                # Indexed, hash-anchored contour edits are baked into the
+                # existing span assets; no outline work runs on the device.
+                correction=contours[name][i]
+                im,report=pixelpatch.apply(im,correction)
+                spec['patches'].extend(correction['patches'])
+            assert set(im.tobytes())<={0,1,2,3,4,5,6,7,8,9,10,11,15}
+            im.info['transparency']=15
+            if not check:
+                dest=ROOT/'art/png';dest.mkdir(parents=True,exist_ok=True)
+                im.save(dest/f'{name}-{i}.png',transparency=15)
+                (dest/f'{name}-{i}.json').write_text(json.dumps(spec,indent=2)+'\n')
+                if i==0 and name=='deer':
+                    original.save(dest/'transparent-base.png',transparency=15)
+                    pixelpatch.review(original,im,[0,0,*item['size']],ROOT/'docs/deer-pixel-review.png')
+            offsets,data=pack(im);label=f'{name}_{i}';frame_names.append(label)
+            # Same span format and runtime reads; intern identical native
+            # rows so articulated poses can share their torso/empty rows.
+            shared=[]
+            for y,offset in enumerate(offsets):
+                row=tuple(data[offset:offset+data[offset]+1])
+                if row not in interned:
+                    interned[row]=len(row_pool);row_pool.extend(row)
+                shared.append(interned[row])
+                decoded=[]
+                for run in row[1:]:decoded.extend([run&15]*((run>>4)+1))
+                assert decoded==list(im.crop((0,y,im.width,y+1)).tobytes())
+            offsets=shared
+            header+=f'static const uint16_t {label}_rows[] NIGHT_ART={{'+','.join(map(str,offsets))+'};\n'
+            manifest[name].append({'frame':i,'size':item['size'],'anchor':item.get('anchor',[im.width//2,im.height]),'sha256':report['sha256'],'opaque_black_pixels':im.tobytes().count(0),'packed_bytes':len(data)+len(offsets)*2})
+            frames.append(im)
+        assets[name]=frames
+        ax,ay=item.get('anchor',[item['size'][0]//2,item['size'][1]])
+        header+=f'static const Frame {name}_frames[] NIGHT_ART={{'+','.join('{'+f'pixel_rows,{n}_rows,{item["size"][0]},{item["size"][1]},{ax},{ay}'+'}' for n in frame_names)+'};\n'
+    header=header.replace('struct Frame {','static const uint8_t pixel_rows[] NIGHT_ART={'+','.join(map(str,row_pool))+'};\nstruct Frame {')
+    assert len(row_pool)<65536
+    header+='static const Animation ANIMATIONS[] NIGHT_ART={'+','.join('{'+f'{name}_frames,{len(item["frames"])}'+'}' for name,item in source.items())+'};\n}\n'
+    sign_header='// CHGame 3x5 glyphs for mapping neon text onto world-space sign faces.\n#pragma once\nstatic const uint32_t SIGN_TEXT[4][5]={\n'
+    for label in ['OPEN','MOTEL','GAS','24H']:
+        rows=[]
+        for y in range(5):
+            bits=0
+            for i,ch in enumerate(label):
+                cols=pixkit.FONT35[ord(ch)-33]
+                for x in range(3):
+                    if cols[x]&(1<<y):bits|=1<<(i*4+x)
+            rows.append(bits)
+        sign_header+='    {'+','.join(map(str,rows))+'},\n'
+    sign_header+='};\n'
+    # Interior samples are semantic coverage, not just nonzero alpha counts.
+    for name,xy in [('deer',(14,17)),('fox',(20,11)),('hare',(12,15)),('owl',(20,15)),('crow',(12,9))]:
+        for im in assets[name]:assert im.getpixel(xy)==0,(name,xy,im.getpixel(xy))
+    target=ROOT/'ArtData.h'
+    arrow=assets['road_arrow'][0]
+    road_header='// Ground-plane arrow from the editable indexed stencil; generated.\n#pragma once\n#include <stdint.h>\n'
+    road_header+='static const uint16_t ROAD_ARROW_ROWS[]={'+','.join(str(sum(1<<x for x in range(arrow.width) if arrow.getpixel((x,y))!=15)) for y in range(arrow.height))+'};\n'
+    if check:
+        assert target.read_text()==header,'ArtData.h is stale'
+        assert (ROOT/'SignText.h').read_text()==sign_header,'SignText.h is stale'
+        assert (ROOT/'RoadArt.h').read_text()==road_header,'RoadArt.h is stale'
+    else:
+        target.write_text(header)
+        (ROOT/'RoadArt.h').write_text(road_header)
+        (ROOT/'SignText.h').write_text(sign_header)
+        (ROOT/'art/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+        atlas(assets,['deer','fox','hare','owl','crow'],ROOT/'docs/wildlife-sprite-sheet.png')
+        atlas(assets,['pine','birch','oak','shrub'],ROOT/'docs/forest-sprite-sheet.png')
+        atlas(assets,['diner','motel','gas','shop'],ROOT/'docs/roadside-building-sheet.png')
+        pixelpatch.review(base(arrow.size),arrow,[0,0,*arrow.size],ROOT/'docs/road-arrow-pixel-review.png')
+    textures=signs(check);haze_assets(textures,arrow,check)
+    print(f'{"Verified" if check else "Built"} {sum(len(a) for a in assets.values())} hand-drawn frames; indexed palette and opaque black body samples checked')
+if __name__=='__main__':main()

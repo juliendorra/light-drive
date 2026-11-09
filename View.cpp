@@ -6,7 +6,6 @@
 #include "HazeArt.h"
 #include "Scenery.h"
 #include "Neon.h"
-#include "CardScore.h"
 #include <string.h>
 #ifdef NIGHT_PROFILE
 volatile uint32_t *nightProfileData();
@@ -637,7 +636,7 @@ void draw(const night::Game &g) {
         snprintf(s,sizeof s,"WAKE-UPS %u",g.lights);center(55,s,Pale);
         snprintf(s,sizeof s,"ANIMALS AVOIDED %u",g.avoided);center(65,s,Pale);
         m=g.best/night::Q;snprintf(s,sizeof s,"BEST %u.%02u KM",m/1000,(m%1000)/10);center(75,s,Dim);
-        center(84,cardscore::status==cardscore::Saved || cardscore::status==cardscore::Ready?"BEST KEPT ON SD":"BEST KEPT ON CONSOLE",Dim);
+        center(84,save::available()?"BEST KEPT ON SD":"INSERT SD TO SAVE",Dim);
         center(94,"A: DRIVE AGAIN   B: HOME",Pale);
     }
 }

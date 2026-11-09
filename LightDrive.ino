@@ -19,8 +19,9 @@ constexpr uint32_t SAVE_MAGIC=save::magic("LGDR");
 #if CHGAME_DEBUG
 static bool debug(char command,const char *args) {
     if(command=='G') {
-        gfx_wait();bool ok=cardscore::store(game.best,game.lights,game.avoided);
-        uint32_t saved=0;ok=cardscore::load(saved) && saved>=game.best && ok;
+        gfx_wait();record.best=game.best;record.palette=game.palette;record.muted=game.muted;record.haptics=game.haptics;
+        bool ok=save::store(SAVE_MAGIC,1,record);Record check;
+        ok=save::load(SAVE_MAGIC,1,check) && check.best==record.best && ok;uint32_t saved=check.best;
         char line[64];snprintf(line,sizeof line,"CARDSCORE %u %u\n",ok,(unsigned)saved);dbg::print(line);return true;
     }
 #ifdef NIGHT_DEVICE_PROFILE
@@ -108,13 +109,13 @@ static bool debug(char command,const char *args) {
         game.screen,(unsigned)game.tick,(unsigned)game.distance,game.position,
         game.sleep,game.speed,game.palette,game.muted,game.offroad,game.lights,game.sign.collected,
         game.signZ(),game.sign.side,game.hazardZ(),game.hazard.kind,game.incidents,game.events,game.shock,
-        game.haptics,rumble::level(),rumble::remaining(),game.tumble,game.damage,game.hazard.age,game.hazardX(),game.avoided,(unsigned)game.best,cardscore::status,
+        game.haptics,rumble::level(),rumble::remaining(),game.tumble,game.damage,game.hazard.age,game.hazardX(),game.avoided,(unsigned)game.best,save::status(),
         game.drowsy,game.blinkPhase,game.blinkClosed(),game.blinkShutter());
     dbg::print(line);return true;
 }
 #endif
 void setup() {
-    chgame.boot();dbg::begin("NIGHT 1.3.11");
+    chgame.boot();dbg::begin("NIGHT 1.3.12");
 #if CHGAME_DEBUG
     dbg::hook=debug;
 #endif
@@ -122,7 +123,6 @@ void setup() {
     if(!save::load(SAVE_MAGIC,1,record))record=Record{};
     gfx_wait();uint32_t cardBest=0;
     if(cardscore::load(cardBest) && cardBest>record.best) {record.best=cardBest;save::store(SAVE_MAGIC,1,record);}
-    else if(record.best>cardBest)cardscore::store(record.best,0,0);
     game.best=record.best;game.palette=record.palette%4;game.muted=record.muted;game.haptics=record.haptics;
     audio::begin(SOUNDS,(uint8_t)Sfx::COUNT,!game.muted);
     feedback::begin();
@@ -154,7 +154,6 @@ void loop() {
     cpuBegan=micros();
 #endif
     if(changed) {
-        if(game.best>record.best)cardscore::store(game.best,game.lights,game.avoided);
         record.best=game.best;record.palette=game.palette;record.muted=game.muted;record.haptics=game.haptics;save::store(SAVE_MAGIC,1,record);
     }
     dbg::markRenderStart();view::draw(game);dbg::markRenderEnd();gfx_flushAsync();

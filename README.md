@@ -41,24 +41,15 @@ Sparse ambient chimes move up two octaves for the small Rev0 sounder. Their quie
 
 ## SD saves
 
-Version 1.3.12 uses [CHSave 0.1.0](https://github.com/juliendorra/chgame-sd-saves).
-Progress and settings are stored in `LGDR.SAV`; existing saves are preserved.
-Prepare a mounted card before installing the new cartridge:
+Uses [CHSave 0.2](https://github.com/juliendorra/chgame-sd-saves).
+App ID: `com.juliendorra.lightdrive`. Firmware has no legacy save fallback.
 
 ```sh
+# New card:
 python3 tools/sd_saves.py prepare --card /path/to/card
+# Existing four-character journal; old file is kept:
+python3 tools/sd_saves.py migrate --card /path/to/card
 ```
 
-The source includes the pinned library and SD adapter. Build through `chgame.py`
-so the SD backend is selected. Keep save files when replacing cartridges.
-
-For source builds, clone the SDK into `.deps/CHGame` and select the tested revision:
-
-```sh
-git clone https://github.com/bateske/CHGame.git .deps/CHGame
-git -C .deps/CHGame checkout edf822c8803a4939f4d0808f779d9522ee41c2ba
-python3 chgame.py build
-python3 chgame.py export --no-build
-```
-
-Release firmware is built with GCC 16.2.0.
+Convert existing saves before installing this build. Keep the hashed `.SAV`
+files when replacing cartridges. The complete ID is checked before writing.

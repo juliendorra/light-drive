@@ -1,6 +1,6 @@
 #pragma once
-#include <stdint.h>
+#include <CHSave.h>
 namespace cardscore {
-// Read-only migration from releases that saved only distance in LIGHTDRV.SAV.
-bool load(uint32_t &best);
+extern chsave::Store saves;
+bool available();
 }

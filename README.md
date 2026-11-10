@@ -41,7 +41,7 @@ Sparse ambient chimes move up two octaves for the small Rev0 sounder. Their quie
 
 ## SD saves
 
-Uses [CHSave 0.2](https://github.com/juliendorra/chgame-sd-saves).
+Uses [CHSave 0.3](https://github.com/juliendorra/chgame-sd-saves).
 App ID: `com.juliendorra.lightdrive`. Firmware has no legacy save fallback.
 
 ```sh

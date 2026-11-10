@@ -10,7 +10,6 @@ from PIL import Image,ImageDraw
 from chgame_env import chgame_root
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'art'))
-sys.path.insert(0,str(ROOT.parent/'MysticBalloon/tools/art'))
 import stencils
 import pixelpatch
 sys.path.insert(0,str(chgame_root() / 'tools'))

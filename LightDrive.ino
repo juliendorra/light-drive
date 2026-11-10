@@ -115,7 +115,7 @@ static bool debug(char command,const char *args) {
 }
 #endif
 void setup() {
-    chgame.boot();dbg::begin("NIGHT 1.3.13");
+    chgame.boot();dbg::begin("NIGHT 1.3.14");
 #if CHGAME_DEBUG
     dbg::hook=debug;
 #endif

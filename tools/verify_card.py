@@ -11,7 +11,7 @@ from chsim import build
 from chdrivelib import Driver,SimTransport
 O=G/'out/card-check';O.mkdir(parents=True,exist_ok=True)
 os.environ['CHSIM_CHGAME']=str(overlay()/'CHGame/src')
-exe=build(G);ID='com.juliendorra.lightdrive';NAME=prepare.filename(ID)
+exe=build(G);ID='com.juliendorra.lightdrive';NAME=prepare.save_path(ID)
 page=bytearray(512);struct.pack_into('<IIHBBI',page,0,prepare.RECORD_TAG,8,8,1,0,0)
 struct.pack_into('<IBBBB',page,16,16000,2,1,0,0);struct.pack_into('<I',page,508,zlib.crc32(page[:508]))
 raw=prepare.descriptor(ID,1)+page+b'\xff'*512

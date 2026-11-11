@@ -41,14 +41,6 @@ Sparse ambient chimes move up two octaves for the small Rev0 sounder. Their quie
 
 ## SD saves
 
-Uses [CHSave 0.4](https://github.com/juliendorra/chgame-sd-saves).
-App ID: `com.juliendorra.lightdrive`. Firmware has no legacy save fallback.
+Uses [CHSave 0.5](https://github.com/juliendorra/chgame-sd-saves). New saves are created automatically in `/SAVES/4OCNF63J.SAV`.
 
-```sh
-# One-time conversion of an existing four-character journal; old file is kept:
-python3 tools/sd_saves.py migrate --card /path/to/card
-```
-
-New saves are created automatically. Convert older four-character saves
-before upgrading. Keep the hashed `.SAV`
-files when replacing cartridges. The complete ID is checked before writing.
+Upgrading? Copy `4OCNF63J.SAV` from the card root into `SAVES/` before playing.

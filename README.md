@@ -41,6 +41,6 @@ Sparse ambient chimes move up two octaves for the small Rev0 sounder. Their quie
 
 ## SD saves
 
-Uses [CHSave 0.5](https://github.com/juliendorra/chgame-sd-saves). New saves are created automatically in `/SAVES/4OCNF63J.SAV`.
+Uses [CHSave 0.6.1](https://github.com/juliendorra/chgame-sd-saves). New saves are created automatically in `/SAVES/4OCNF63J.SAV`.
 
 Upgrading? Copy `4OCNF63J.SAV` from the card root into `SAVES/` before playing.

@@ -5,12 +5,14 @@ import os,struct,sys,zlib
 G=Path(__file__).resolve().parents[1];R=G
 sys.path[:0]=[str(G/'tools'),str(R/'CHGame/tools/chsim'),str(R/'chgame-sd-saves/tools'),str(R/'CHGame/platform/board/arduino/CHGame/libraries/CHSd/tools')]
 import prepare
-from sd_saves import overlay
+from sd_saves import SDK_ROOT, simulator_environment
+sys.path[:0]=[str(SDK_ROOT/'tools/chsim'), str(SDK_ROOT/'platform/board/arduino/CHGame/libraries/CHSd/tools')]
 from fatimg import build_image,FatVolume
 from chsim import build
 from chdrivelib import Driver,SimTransport
 O=G/'out/card-check';O.mkdir(parents=True,exist_ok=True)
-os.environ['CHSIM_CHGAME']=str(overlay()/'CHGame/src')
+if not os.environ.get('CHSIM_EXTRA_LIBRARIES'):
+    os.environ.update(simulator_environment())
 exe=build(G);ID='com.juliendorra.lightdrive';NAME=prepare.save_path(ID)
 page=bytearray(512);struct.pack_into('<IIHBBI',page,0,prepare.RECORD_TAG,8,8,1,0,0)
 struct.pack_into('<IBBBB',page,16,16000,2,1,0,0);struct.pack_into('<I',page,508,zlib.crc32(page[:508]))
